@@ -1,0 +1,95 @@
+name: MSBuild
+
+on:
+  push:
+    tags:
+    - 'v*'
+
+env:
+  SOLUTION_FILE_PATH: .
+  BUILD_CONFIGURATION: Release
+  OPENCV_VERSION: 4.5.1-20210316
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Extract Tag version
+      id: tag
+      run: |
+        echo "::set-output name=version::${{ github.ref }}" | %{ $_ -replace "refs/tags/","" }
+
+    - name: Show Tag version
+      run: |
+        echo ${{ steps.tag.outputs.version }}
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Cache OpenCV binaries
+      id: cache_opencv
+      uses: actions/cache@v2
+      with:
+        path: ./opencv_build
+        key: opencv-${{ env.OPENCV_VERSION }}
+
+    - name: Download OpenCV binaries
+      if: steps.cache_opencv.outputs.cache-hit != 'true'
+      run: |
+        curl -L "https://github.com/sshock-tetris/opencv_build/releases/download/v${{ env.OPENCV_VERSION }}/opencv_win-x64.zip" -o ./opencv_win-x64.zip
+
+    - name: Extract OpenCV binaries
+      if: steps.cache_opencv.outputs.cache-hit != 'true'
+      shell: powershell
+      run: |
+        Expand-Archive -Path opencv_win-x64.zip -DestinationPath opencv_build -Force -ErrorAction Stop
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Restore NuGet packages
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
+      run: nuget restore ${{ env.SOLUTION_FILE_PATH }}
+
+    - name: Build
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
+      run: msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} ${{ env.SOLUTION_FILE_PATH }}
+
+    - name: Make out directory
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
+      run: mkdir ./out
+
+    - name: Copy built file
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
+      run: cp ./x64/Release/autoStartMarginTimer.exe ./out
+
+    - name: Copy document file
+      working-directory: ${{ env.GITHUB_WORKSPACE }}
+      run: cp ./docs/*.txt ./out
+
+    - name: Create archive
+      run: |
+        compress-archive -path "./out/*" -destinationpath "./autoStartMarginTimer.zip" -compressionlevel optimal
+        
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    
+    - name: Upload Release
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./autoStartMarginTimer.zip
+        asset_name: autoStartMarginTimer_${{ steps.tag.outputs.version }}.zip
+        asset_content_type: application/zip

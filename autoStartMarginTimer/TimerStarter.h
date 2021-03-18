@@ -34,6 +34,7 @@ class TimerStarter {
   HANDLE m_monitor_thread;
 
   bool FindOBS();
+  void ResetOBSProperty();
   void StartMonitorThread();
   void StopMonitorThread();
   void ThreadInternal();

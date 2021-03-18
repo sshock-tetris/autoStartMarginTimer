@@ -129,7 +129,9 @@ UINT __stdcall TimerStarter::ThreadLauncher(void* args) {
   HRESULT hr =
       ::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
   if (SUCCEEDED(hr)) {
-    static_cast<TimerStarter*>(args)->ThreadInternal();
+    TimerStarter* starter = static_cast<TimerStarter*>(args);
+    starter->ThreadInternal();
+    starter->ResetOBSProperty();
     ::CoUninitialize();
   }
   _endthreadex(0);
@@ -207,6 +209,14 @@ bool TimerStarter::FindOBS() {
   return IsEnabled();
 }
 
+void TimerStarter::ResetOBSProperty() {
+  SendOBSClosedToMainDlg(m_parent->GetWindow());
+  m_monitor_tid = 0;
+  m_obs_pid = 0;
+  m_obs_preview = NULL;
+  m_obs_interactive = NULL;
+}
+
 void TimerStarter::StartMonitorThread() {
   StopMonitorThread();
   m_monitor_thread = reinterpret_cast<HANDLE>(
@@ -218,10 +228,6 @@ void TimerStarter::StopMonitorThread() {
     PostThreadMessage(m_monitor_tid, WM_QUIT, 0, 0);
     WaitForSingleObject(m_monitor_thread, INFINITE);
     CloseHandle(m_monitor_thread);
-    m_monitor_tid = 0;
-    m_obs_pid = 0;
-    m_obs_preview = NULL;
-    m_obs_interactive = NULL;
   }
 }
 
@@ -278,7 +284,6 @@ void TimerStarter::ThreadInternal() {
     }
     if (!IsEnabled()) {
       // MainDlgに通知してスレッド終了
-      SendOBSClosedToMainDlg(m_parent->GetWindow());
       break;
     }
     int loop = timer.Run();

@@ -34,6 +34,7 @@ class CMainDlg : public CDialogImpl<CMainDlg> {
 
   // Dialog Components
   CButton m_detect_obs_button;
+  CButton m_manual_start_button;
   CEdit m_status;
 
   // Handler prototypes (uncomment arguments if needed):

@@ -24,6 +24,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/,
   SetIcon(hIconSmall, FALSE);
 
   m_detect_obs_button = GetDlgItem(IDC_DETECTOBS);
+  m_manual_start_button = GetDlgItem(IDC_SENDSTART);
   m_status = GetDlgItem(IDC_STATUS);
 
   BOOL dummy;
@@ -53,6 +54,7 @@ LRESULT CMainDlg::OnSyscommand(UINT, WPARAM wparam, LPARAM, BOOL& handled) {
 
 LRESULT CMainDlg::OnOBSClosed(UINT, WPARAM, LPARAM, BOOL&) {
   m_detect_obs_button.EnableWindow(TRUE);
+  m_manual_start_button.EnableWindow(FALSE);
   m_status.SetSelAll();
   m_status.ReplaceSel(L"[自動開始できません]");
   return TRUE;
@@ -94,6 +96,7 @@ LRESULT CMainDlg::OnAppAbout(WORD /*wNotifyCode*/,
 LRESULT CMainDlg::OnDetectOBS(WORD, WORD /*wID*/, HWND, BOOL&) {
   if (m_model->Start()) {
     m_detect_obs_button.EnableWindow(FALSE);
+    m_manual_start_button.EnableWindow(TRUE);
     BOOL dummy;
     OnStatusInitialized(0, 0, 0, dummy);
   } else {

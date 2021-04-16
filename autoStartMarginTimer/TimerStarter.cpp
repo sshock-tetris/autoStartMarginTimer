@@ -109,7 +109,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lparam) {
 }
 
 void SendOBSClosedToMainDlg(HWND window) {
-  SendMessage(window, WM_T99TIMER_OBSCLOSED, 0, 0);
+  SendNotifyMessage(window, WM_T99TIMER_OBSCLOSED, 0, 0);
 }
 }  // namespace
 

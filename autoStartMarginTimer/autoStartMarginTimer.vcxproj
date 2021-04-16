@@ -149,6 +149,9 @@
       <TypeLibraryName>$(IntDir)/autoStartMarginTimer.tlb</TypeLibraryName>
       <DllDataFileName />
     </Midl>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -222,6 +225,9 @@
       <TypeLibraryName>$(IntDir)/autoStartMarginTimer.tlb</TypeLibraryName>
       <DllDataFileName />
     </Midl>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />

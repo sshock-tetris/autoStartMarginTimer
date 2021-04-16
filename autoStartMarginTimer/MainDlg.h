@@ -33,7 +33,7 @@ class CMainDlg : public CDialogImpl<CMainDlg> {
   MainDlgModel* m_model;
 
   // Dialog Components
-  CButton m_start_button;
+  CButton m_detect_obs_button;
   CEdit m_status;
 
   // Handler prototypes (uncomment arguments if needed):

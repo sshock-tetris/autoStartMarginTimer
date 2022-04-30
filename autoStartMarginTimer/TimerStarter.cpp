@@ -19,8 +19,8 @@ bool DetectMatchingColor(cv::Mat* target) {
   cv::Mat mw1 =
       target->operator()(cv::Range(413, 444), cv::Range(386, 573));
   cv::Scalar mw1mean = cv::mean(mw1);
-  // r > 200 && 73 <= g < 120 && 60 <= b < 110
-  return mw1mean[2] > 200 && mw1mean[1] >= 73 && mw1mean[1] < 120 &&
+  // r > 200 && 60 <= g < 120 && 60 <= b < 110
+  return mw1mean[2] > 200 && mw1mean[1] >= 60 && mw1mean[1] < 120 &&
          mw1mean[0] >= 60 && mw1mean[0] < 110;
 }
 

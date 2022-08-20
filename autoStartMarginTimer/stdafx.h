@@ -6,10 +6,10 @@
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN
-#define NTDDI_VERSION NTDDI_WIN7
-#define WINVER _WIN32_WINNT_WIN7
-#define _WIN32_WINNT _WIN32_WINNT_WIN7
-#define _WIN32_IE _WIN32_IE_IE80
+#define NTDDI_VERSION NTDDI_WIN10_RS4
+#define WINVER _WIN32_WINNT_WIN10
+#define _WIN32_WINNT _WIN32_WINNT_WIN10
+#define _WIN32_IE _WIN32_IE_IE110
 #define NOATOM
 #define NOMEMMGR
 #define NOOPENFILE
@@ -42,6 +42,12 @@
 #include <memory>
 #include <psapi.h>
 #include <shellapi.h>
+
+#include <functional>
+#include <dxgi.h>
+#include <d3d11.h>
+#include <winrt/Windows.Graphics.DirectX.Direct3D11.h>
+#include <winrt/Windows.Graphics.Capture.h>
 
 #include <opencv2/opencv.hpp>
 

@@ -4,6 +4,7 @@
 #include "TimerStarter.h"
 #include "Timer.h"
 #include "MainDlgModel.h"
+#include "GraphicsCapture.h"
 
 namespace {
 bool DetectMatchingColor(cv::Mat* target) {
@@ -229,6 +230,9 @@ void TimerStarter::StopMonitorThread() {
 }
 
 void TimerStarter::ThreadInternal() {
+  // FPSの数値をVSYNCより大きい数値(大体の環境で60)にすると、
+  // Windows Graphics Captureでの画像取得が失敗する可能性があるので、
+  // 上げすぎるのは推奨しない。
   const int FPS = 30;
   if (!ObsRecognized()) {
     return;
@@ -241,33 +245,13 @@ void TimerStarter::ThreadInternal() {
   if (!GetClientRect(m_obs_preview, &rect)) {
     return;
   }
-  BITMAPINFO bmpInfo;
-  bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-  bmpInfo.bmiHeader.biWidth = rect.right;
-  bmpInfo.bmiHeader.biHeight = -rect.bottom;
-  bmpInfo.bmiHeader.biPlanes = 1;
-  bmpInfo.bmiHeader.biBitCount = 24;
-  bmpInfo.bmiHeader.biCompression = BI_RGB;
-
-  LPDWORD raw_pixel[2];
-  CClientDC obs_dc(m_obs_preview);
-  CBitmap offscreen_buffer[2];
-  offscreen_buffer[0].CreateDIBSection(NULL, &bmpInfo, DIB_RGB_COLORS,
-                                       reinterpret_cast<void**>(&raw_pixel[0]),
-                                       NULL, 0);
-  offscreen_buffer[1].CreateDIBSection(NULL, &bmpInfo, DIB_RGB_COLORS,
-                                       reinterpret_cast<void**>(&raw_pixel[1]),
-                                       NULL, 0);
-  CDC memory_dc[2];
-  memory_dc[0].CreateCompatibleDC(obs_dc);
-  memory_dc[0].SelectBitmap(offscreen_buffer[0]);
-  memory_dc[1].CreateCompatibleDC(obs_dc);
-  memory_dc[1].SelectBitmap(offscreen_buffer[1]);
 
   cv::Mat preview_image[2] = {
-      cv::Mat(rect.bottom, rect.right, CV_8UC3, raw_pixel[0]),
-      cv::Mat(rect.bottom, rect.right, CV_8UC3, raw_pixel[1])
+      cv::Mat(rect.bottom, rect.right, CV_8UC4),
+      cv::Mat(rect.bottom, rect.right, CV_8UC4)
   };
+  GraphicsCapture capture;
+  capture.Start(m_obs_preview);
 
   Timer timer;
   timer.Start(FPS);
@@ -285,9 +269,11 @@ void TimerStarter::ThreadInternal() {
     }
     int loop = timer.Run();
     for (int i = 0; i < loop; i++) {
-      memory_dc[frames % 2].BitBlt(0, 0, rect.right, rect.bottom, obs_dc, 0, 0,
-                                   SRCCOPY);
       cv::Mat* target = frames % 2 == 0 ? &preview_image[0] : &preview_image[1];
+      if (!capture.GetNextFrame(*target)) {
+        frames++;
+        continue;
+      }
       // 暗転時に初期状態に戻す
       // 黒が(R,G,B)=(16,16,16)の環境を想定して、normは大きめの値を取るようにする
       // (16,16,16)と"Now loading"を合わせて約27000000。
@@ -347,4 +333,5 @@ void TimerStarter::ThreadInternal() {
     }
     Sleep(1);
   }
+  capture.Stop();
 }

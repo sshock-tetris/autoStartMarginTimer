@@ -8,11 +8,11 @@ on:
 env:
   SOLUTION_FILE_PATH: .
   BUILD_CONFIGURATION: Release
-  OPENCV_VERSION: 4.5.5_20220226
+  OPENCV_VERSION: 4.6.0_20220820
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     steps:
     - name: Extract Tag version

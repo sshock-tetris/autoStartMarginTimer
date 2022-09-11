@@ -62,6 +62,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lparam) {
   const int CLASS_NAME_LENGTH = 256;
   const wchar_t OBS_WINDOW_CLASS_NAME_POSTFIX[] = L"QWindowIcon";
   const wchar_t OBS_PREVIEW_PREFIX[] = L"ウィンドウ プロジェクター (ソース) - ";
+  const wchar_t OBS_PREVIEW_PREFIX_2[] = L"ウィンドウプロジェクター (ソース) - ";
   const wchar_t OBS_INTERACTIVE[] = L"'MarginTimer' との相互作用";
 
   TimerStarter* starter = reinterpret_cast<TimerStarter*>(lparam);
@@ -93,6 +94,11 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lparam) {
         // ウィンドウプロジェクター
         if (StrCmpN(window_name.get(), OBS_PREVIEW_PREFIX,
                     _countof(OBS_PREVIEW_PREFIX) - 1) == 0) {
+          starter->SetObsPreviewHWND(hwnd);
+          // FALSEを返さないのは、対話ウィンドウが未調査の可能性があるため
+          return TRUE;
+        } else if (StrCmpN(window_name.get(), OBS_PREVIEW_PREFIX_2,
+                           _countof(OBS_PREVIEW_PREFIX_2) - 1) == 0) {
           starter->SetObsPreviewHWND(hwnd);
           // FALSEを返さないのは、対話ウィンドウが未調査の可能性があるため
           return TRUE;

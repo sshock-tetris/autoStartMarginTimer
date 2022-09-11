@@ -19,7 +19,5 @@ class GraphicsCapture {
   winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool m_frame_pool =
       nullptr;
   winrt::Windows::Graphics::Capture::GraphicsCaptureSession m_session = nullptr;
-  winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool::
-      FrameArrived_revoker m_frameArrivedRevoker;
   SIZE m_client_size = {0};
 };

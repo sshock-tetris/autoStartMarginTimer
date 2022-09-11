@@ -98,8 +98,6 @@ bool GraphicsCapture::Start(HWND hwnd) {
 }
 
 void GraphicsCapture::Stop() {
-  m_frameArrivedRevoker.revoke();
-
   m_session.Close();
   m_session = nullptr;
 

@@ -257,7 +257,9 @@ void TimerStarter::ThreadInternal() {
       cv::Mat(rect.bottom, rect.right, CV_8UC4)
   };
   GraphicsCapture capture;
-  capture.Start(m_obs_preview);
+  if (!capture.Start(m_obs_preview)) {
+    return;
+  }
 
   Timer timer;
   timer.Start(FPS);

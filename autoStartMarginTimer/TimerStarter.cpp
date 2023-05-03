@@ -133,14 +133,13 @@ TimerStarter::~TimerStarter() {
 }
 
 UINT __stdcall TimerStarter::ThreadLauncher(void* args) {
-  HRESULT hr =
-      ::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-  if (SUCCEEDED(hr)) {
-    TimerStarter* starter = static_cast<TimerStarter*>(args);
-    starter->ThreadInternal();
-    starter->ResetOBSProperty();
-    ::CoUninitialize();
-  }
+  winrt::init_apartment();
+
+  TimerStarter* starter = static_cast<TimerStarter*>(args);
+  starter->ThreadInternal();
+  starter->ResetOBSProperty();
+
+  winrt::uninit_apartment();
   _endthreadex(0);
   return 0;
 }
@@ -236,7 +235,10 @@ void TimerStarter::StopMonitorThread() {
 }
 
 void TimerStarter::ThreadInternal() {
-  // FPSの数値をVSYNCより大きい数値(大体の環境で60)にすると、
+  // Windows Graphics Capture APIは、基本的にはキャプチャ動作が非同期に実行される。
+  // キャプチャ画像に変化があった場合(vsyncと同期?)にコールバック関数を呼び出す仕様が基本だが、
+  // 自分から新しいキャプチャ画像がないかを調べることもできる。ただしその場合、FPSの数値を
+  // ディスプレイのリフレッシュレートより大きい数値(大体の環境で60)にすると、
   // Windows Graphics Captureでの画像取得が失敗する可能性があるので、
   // 上げすぎるのは推奨しない。
   const int FPS = 30;

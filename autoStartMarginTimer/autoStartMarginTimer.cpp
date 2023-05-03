@@ -32,10 +32,7 @@ int WINAPI _tWinMain(HINSTANCE /*hInstance*/,
                      HINSTANCE /*hPrevInstance*/,
                      LPTSTR lpstrCmdLine,
                      int nCmdShow) {
-  HRESULT hRes = ::CoInitialize(NULL);
-  if (FAILED(hRes)) {
-    return 2;
-  }
+  winrt::init_apartment();
 
   if (!CheckMultipleInstance()) {
     return 1;
@@ -43,7 +40,7 @@ int WINAPI _tWinMain(HINSTANCE /*hInstance*/,
 
   int nRet = Run(lpstrCmdLine, nCmdShow);
 
-  ::CoUninitialize();
+  winrt::uninit_apartment();
 
   return nRet;
 }

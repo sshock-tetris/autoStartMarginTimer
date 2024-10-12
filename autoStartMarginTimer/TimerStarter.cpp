@@ -167,10 +167,10 @@ bool TimerStarter::SendStart() const {
   if (!IsEnabled()) {
     return false;
   }
-  SendMessage(m_obs_interactive, WM_KEYDOWN, VK_DELETE, 0);
-  SendMessage(m_obs_interactive, WM_KEYUP, VK_DELETE, 0);
-  SendMessage(m_obs_interactive, WM_KEYDOWN, VK_RETURN, 0);
-  SendMessage(m_obs_interactive, WM_KEYUP, VK_RETURN, 0);
+  SendMessage(m_obs_interactive, WM_KEYDOWN, VK_F12, 0);
+  SendMessage(m_obs_interactive, WM_KEYUP, VK_F12, 0);
+  SendMessage(m_obs_interactive, WM_KEYDOWN, VK_F10, 0);
+  SendMessage(m_obs_interactive, WM_KEYUP, VK_F10, 0);
   return true;
 }
 
@@ -178,8 +178,8 @@ bool TimerStarter::SendEnd() const {
   if (!IsEnabled()) {
     return false;
   }
-  SendMessage(m_obs_interactive, WM_KEYDOWN, VK_DELETE, 0);
-  SendMessage(m_obs_interactive, WM_KEYUP, VK_DELETE, 0);
+  SendMessage(m_obs_interactive, WM_KEYDOWN, VK_F12, 0);
+  SendMessage(m_obs_interactive, WM_KEYUP, VK_F12, 0);
   return true;
 }
 

@@ -75,7 +75,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)opencv_build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)opencv_build\staticlib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)opencv_build\x64\vc17\staticlib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -85,7 +85,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)opencv_build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)opencv_build\staticlib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)opencv_build\x64\vc17\staticlib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -102,7 +102,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_core470d.lib;ippicvmt.lib;ippiw.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core4120d.lib;ipphal.lib;ippicvmt.lib;ippiw.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -137,7 +137,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_core470d.lib;ippicvmt.lib;ippiw.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core4120d.lib;ipphal.lib;ippicvmt.lib;ippiw.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -177,7 +177,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <AdditionalOptions>/PDBALTPATH:%_PDB% /DEFAULTLIB:ucrt.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>opencv_core470.lib;ippicvmt.lib;ippiw.lib;zlib.lib;atls.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core4120.lib;ipphal.lib;ippicvmt.lib;ippiw.lib;zlib.lib;atls.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libucrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
@@ -217,7 +217,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <AdditionalOptions>/PDBALTPATH:%_PDB% /DEFAULTLIB:ucrt.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>opencv_core470.lib;ippicvmt.lib;ippiw.lib;zlib.lib;atls.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core4120.lib;ipphal.lib;ippicvmt.lib;ippiw.lib;zlib.lib;atls.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libucrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>

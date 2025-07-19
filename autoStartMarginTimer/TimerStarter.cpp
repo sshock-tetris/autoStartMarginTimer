@@ -94,7 +94,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lparam) {
       if (!starter->ObsRecognized()) {
         // ウィンドウプロジェクター
         for (const wchar_t* prefix : OBS_WINDOW_PROJECTOR_PREFIX) {
-          if (StrCmpN(window_name.get(), prefix, lstrlen(prefix))) {
+          if (StrCmpN(window_name.get(), prefix, lstrlen(prefix)) == 0) {
             starter->SetObsPreviewHWND(hwnd);
             // FALSEを返さないのは、対話ウィンドウが未調査の可能性があるため
             return TRUE;

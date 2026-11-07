@@ -13,6 +13,8 @@
 #include <winrt/Windows.Graphics.h>
 #include <winrt/Windows.System.h>
 
+#include "BgraImage.h"
+
 using namespace winrt;
 using namespace winrt::Windows;
 using namespace winrt::Windows::Graphics::Capture;
@@ -108,7 +110,7 @@ void GraphicsCapture::Stop() {
   m_capture_item = nullptr;
 }
 
-bool GraphicsCapture::GetNextFrame(cv::Mat& figure) {
+bool GraphicsCapture::GetNextFrame(BgraImage& image) {
   const auto frame = m_frame_pool.TryGetNextFrame();
   if (!frame) {
     return false;
@@ -147,17 +149,15 @@ bool GraphicsCapture::GetNextFrame(cv::Mat& figure) {
   if (FAILED(hr)) {
     return false;
   }
-  // 0xAARRGGBB; アルファチャンネルの値を常に0にする
-  const __m128i mask = _mm_set1_epi32(0x00ffffff);
-  const int simd_strides = m_client_size.cx / 4;
-  for (int i = 0; i < m_client_size.cy; i++) {
-    for (int j = 0; j < simd_strides; j++) {
-      __m128i src = _mm_load_si128(static_cast<__m128i*>(sr.pData) +
-                                   i * simd_strides + j);
-      __m128i dst = _mm_and_epi32(src, mask);
-      _mm_store_si128(
-          reinterpret_cast<__m128i*>(figure.data) + i * simd_strides + j, dst);
-    }
+  // テクスチャの 1 行のバイト数（RowPitch）は画像の幅 x 4 より大きい場合が
+  // あるので、1 行ずつコピーする
+  const int width = std::min<int>(m_client_size.cx, image.width());
+  const int height = std::min<int>(m_client_size.cy, image.height());
+  const size_t row_bytes = static_cast<size_t>(width) * 4;
+  const uint8_t* src = static_cast<const uint8_t*>(sr.pData);
+  for (int y = 0; y < height; y++) {
+    std::memcpy(image.Row(y), src + static_cast<size_t>(y) * sr.RowPitch,
+                row_bytes);
   }
   m_dc->Unmap(m_captured.get(), 0);
 

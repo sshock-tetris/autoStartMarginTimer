@@ -5,24 +5,23 @@
 #include "Timer.h"
 #include "MainDlgModel.h"
 #include "GraphicsCapture.h"
+#include "BgraImage.h"
 
 namespace {
-bool DetectMatchingColor(cv::Mat* target) {
+bool DetectMatchingColor(const BgraImage& target) {
   // [マッチング開始準備中] -> [READY] -> [3] -> [2] -> [1] -> [GO] -> [ゴースト表示]
   //                          \  _________________________________________________/
   //                           \/
   //                           338f (5.61sec.)
   // [Matching Window]
   // Color(RGB): 250, 73, 60
-  // ※cv::ScalarはBGRの順であることに注意
   // 960x540 => (386,413)-(573,444)
   // 1920x1080 => (772,826)-(1146,890)
-  cv::Mat mw1 =
-      target->operator()(cv::Range(413, 444), cv::Range(386, 573));
-  cv::Scalar mw1mean = cv::mean(mw1);
+  const RECT MATCHING_WINDOW_RECT = {386, 413, 573, 444};
+  const BgrMean mw1mean = target.Mean(MATCHING_WINDOW_RECT);
   // r > 200 && 60 <= g < 120 && 60 <= b < 110
-  return mw1mean[2] > 200 && mw1mean[1] >= 60 && mw1mean[1] < 120 &&
-         mw1mean[0] >= 60 && mw1mean[0] < 110;
+  return mw1mean.r > 200 && mw1mean.g >= 60 && mw1mean.g < 120 &&
+         mw1mean.b >= 60 && mw1mean.b < 110;
 }
 
 DWORD FindOBSProcess() {
@@ -254,9 +253,9 @@ void TimerStarter::ThreadInternal() {
     return;
   }
 
-  cv::Mat preview_image[2] = {
-      cv::Mat(rect.bottom, rect.right, CV_8UC4),
-      cv::Mat(rect.bottom, rect.right, CV_8UC4)
+  BgraImage preview_image[2] = {
+      BgraImage(rect.right, rect.bottom),
+      BgraImage(rect.right, rect.bottom)
   };
   GraphicsCapture capture;
   if (!capture.Start(m_obs_preview)) {
@@ -279,15 +278,16 @@ void TimerStarter::ThreadInternal() {
     }
     int loop = timer.Run();
     for (int i = 0; i < loop; i++) {
-      cv::Mat* target = frames % 2 == 0 ? &preview_image[0] : &preview_image[1];
+      BgraImage* target =
+          frames % 2 == 0 ? &preview_image[0] : &preview_image[1];
       if (!capture.GetNextFrame(*target)) {
         frames++;
         continue;
       }
       // 暗転時に初期状態に戻す
-      // 黒が(R,G,B)=(16,16,16)の環境を想定して、normは大きめの値を取るようにする
+      // 黒が(R,G,B)=(16,16,16)の環境を想定して、BGRの合計値は大きめの値を取るようにする
       // (16,16,16)と"Now loading"を合わせて約27000000。
-      if (cv::norm(*target, cv::NORM_L1) < 27000000 &&
+      if (target->SumBgr() < 27000000 &&
           current_status != status::INITIALIZED) {
         SendNotifyMessage(m_parent->GetWindow(), WM_T99TIMER_INITIALIZED, 0, 0);
         current_status = status::INITIALIZED;
@@ -297,10 +297,10 @@ void TimerStarter::ThreadInternal() {
         // マッチング中の時点ではフィールド上部や左の方は動きがないはず
         // 上部: 960x540 => (322,42)-(668,314)
         // 左部: 960x540 => (322,42)-(452,492)
-        cv::Mat fu1 = preview_image[0](cv::Range(42, 314), cv::Range(322, 668));
-        cv::Mat fu2 = preview_image[1](cv::Range(42, 314), cv::Range(322, 668));
-        double field_norm = cv::norm(cv::abs(fu1 - fu2), cv::NORM_L2);
-        if (DetectMatchingColor(target) && field_norm < 3000) {
+        const RECT FIELD_UPPER_RECT = {322, 42, 668, 314};
+        double field_norm =
+            preview_image[0].DiffNormL2(preview_image[1], FIELD_UPPER_RECT);
+        if (DetectMatchingColor(*target) && field_norm < 3000) {
           if (current_status != status::MATCHING) {
             SendNotifyMessage(m_parent->GetWindow(), WM_T99TIMER_MATCHING, 0,
                               0);
@@ -312,13 +312,13 @@ void TimerStarter::ThreadInternal() {
           break;
         }
       } else if (current_status == status::MATCHING &&
-                 !DetectMatchingColor(target)) {
+                 !DetectMatchingColor(*target)) {
         SendNotifyMessage(m_parent->GetWindow(), WM_T99TIMER_READY, 0, 0);
         ready_frame = frames;
         current_status = status::READYGO;
       } else if (current_status == status::READYGO) {
         // マッチング中を認識した場合は初期状態に戻す
-        if (DetectMatchingColor(target)) {
+        if (DetectMatchingColor(*target)) {
           current_status = status::INITIALIZED;
         }
         // [NEXT]
@@ -326,9 +326,8 @@ void TimerStarter::ThreadInternal() {
         // 960x540 => ミノ部のみ(612,64)-(654,294)
         // 1920x1080 => 外枠(1212,86)-(1338,626)
         // 1920x1080 => ミノ部のみ(1222,124)-(1312,588)
-        cv::Mat p1 = preview_image[0](cv::Range(64, 294), cv::Range(612, 654));
-        cv::Mat p2 = preview_image[1](cv::Range(64, 294), cv::Range(612, 654));
-        double norm = cv::norm(cv::abs(p1 - p2), cv::NORM_L2);
+        const RECT NEXT_RECT = {612, 64, 654, 294};
+        double norm = preview_image[0].DiffNormL2(preview_image[1], NEXT_RECT);
         if (frames - ready_frame >= 337 / (60 / FPS) && norm > 4700) {
           SendNotifyMessage(m_parent->GetWindow(), WM_T99TIMER_START, 0, 0);
           SendStart();

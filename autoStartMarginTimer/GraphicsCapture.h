@@ -1,12 +1,14 @@
 #pragma once
 
+class BgraImage;
+
 class GraphicsCapture {
  public:
   GraphicsCapture() = default;
   ~GraphicsCapture() = default;
   bool Start(HWND hwnd);
   void Stop();
-  bool GetNextFrame(cv::Mat& figure);
+  bool GetNextFrame(BgraImage& image);
 
  private:
   winrt::com_ptr<ID3D11Device> m_device;

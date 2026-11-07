@@ -11,7 +11,6 @@ permissions:
 env:
   SOLUTION_FILE_PATH: .
   BUILD_CONFIGURATION: Release
-  OPENCV_VERSION: 4.12.0_20250719
 
 jobs:
   build:
@@ -29,24 +28,6 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v4
-
-    - name: Cache OpenCV binaries
-      id: cache_opencv
-      uses: actions/cache@v4
-      with:
-        path: ./opencv_build
-        key: opencv-${{ env.OPENCV_VERSION }}
-
-    - name: Download OpenCV binaries
-      if: steps.cache_opencv.outputs.cache-hit != 'true'
-      run: |
-        curl -L "https://github.com/sshock-tetris/opencv_build/releases/download/v${{ env.OPENCV_VERSION }}/opencv_win-x64.zip" -o ./opencv_win-x64.zip
-
-    - name: Extract OpenCV binaries
-      if: steps.cache_opencv.outputs.cache-hit != 'true'
-      shell: powershell
-      run: |
-        Expand-Archive -Path opencv_win-x64.zip -DestinationPath opencv_build -Force -ErrorAction Stop
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1

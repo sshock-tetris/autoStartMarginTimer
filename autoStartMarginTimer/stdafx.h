@@ -49,8 +49,6 @@
 #include <winrt/Windows.Graphics.DirectX.Direct3D11.h>
 #include <winrt/Windows.Graphics.Capture.h>
 
-#include <opencv2/opencv.hpp>
-
 #define WM_T99TIMER_OBSCLOSED    WM_APP + 1
 #define WM_T99TIMER_INITIALIZED  WM_APP + 2
 #define WM_T99TIMER_MATCHING     WM_APP + 3

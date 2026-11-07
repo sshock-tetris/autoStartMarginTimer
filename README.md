@@ -23,5 +23,4 @@
 ## License
 
 このソフトウェアは、Apache 2.0ライセンスで配布されている製作物が含まれています。
-このソフトウェアは[OpenCV](https://opencv.org/)、
-[Windows Template Library (WTL)](http://sourceforge.net/projects/wtl/)を使用しています。
+このソフトウェアは[Windows Template Library (WTL)](http://sourceforge.net/projects/wtl/)を使用しています。
